@@ -73,7 +73,7 @@ model User {
   email_verified_at   DateTime?
   password_hash       String
   password_changed_at DateTime?
-  phone_number        String?
+  phone_number        String //TODO: This shouldn't be nullable
   profile_image       String?
   cleaner_status      CleanerStatus?
   created_at          DateTime        @default(now())
@@ -99,9 +99,10 @@ model AvailabilitySlot {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  user User @relation(fields: [user_id], references: [userId])
+  cleaner User @relation(fields: [user_id], references: [userId], onDelete: Cascade)
 
-  @@index([user_id, date], name: "idx_availability_user_date")
+  @@unique([user_id, date, start_time, end_time])
+  @@index([user_id, date], map: "idx_availability_user_date")
 }
 
 // =========================================================
@@ -125,8 +126,12 @@ model Chalet {
   default_cleaning_session_template  CleaningSessionTemplate?  @relation(fields: [default_cleaning_session_template_id], references: [id])
   chalet_images                      ChaletImage[]
   cleaning_sessions                  CleaningSession[]
+
+  @@index([owner_id, id], map: "idx_chalets_owner_id")
+  @@index([default_cleaning_session_template_id], map: "idx_chalets_default_template")
 }
 
+ // TODO: Reached here
 model ChaletImage {
   id            Int      @id @default(autoincrement())
   chalet_id     Int
