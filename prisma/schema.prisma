@@ -110,25 +110,22 @@ model AvailabilitySlot {
 // =========================================================
 
 model Chalet {
-  id                                    Int      @id @default(autoincrement())
-  owner_id                              String
-  name                                  String
-  location                              String
-  latitude                              Decimal? @db.Decimal(10, 8)
-  longitude                             Decimal? @db.Decimal(11, 8)
-  access_instructions                   String?
-  permanent_notes                       String?
-  default_cleaning_session_template_id  Int?    // TODO: are we sure it's optional?
-  created_at                            DateTime @default(now())
-  updated_at                            DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  owner_id             String
+  name                 String
+  location             String
+  latitude             Decimal? @db.Decimal(10, 8)
+  longitude            Decimal? @db.Decimal(11, 8)
+  access_instructions  String?
+  permanent_notes      String?
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
 
-  owner                              User                      @relation(fields: [owner_id], references: [userId])
-  default_cleaning_session_template  CleaningSessionTemplate?  @relation(fields: [default_cleaning_session_template_id], references: [id])
-  chalet_images                      ChaletImage[]
-  cleaning_sessions                  CleaningSession[]
+  owner              User              @relation(fields: [owner_id], references: [userId])
+  chalet_images      ChaletImage[]
+  cleaning_sessions  CleaningSession[]
 
   @@index([owner_id, id], map: "idx_chalets_owner_id")
-  @@index([default_cleaning_session_template_id], map: "idx_chalets_default_template")
 }
 
  // TODO: Reached here
@@ -148,21 +145,27 @@ model ChaletImage {
 
 // =========================================================
 // CLEANING SESSION TEMPLATES
-// Owner-level, reusable checklists. A chalet can point to one
-// as its default; individual sessions can still override.
+// Owner-scoped, reusable checklists. Every new owner gets their
+// own copy of the platform's global templates at signup (app-level
+// logic, not enforced here) — there is no shared/global row referenced
+// at runtime, so owner_id is effectively always set post-signup.
+// Soft-deleted via archived_at so past sessions that reference a
+// template keep working after an owner "deletes" it.
 // =========================================================
 
 model CleaningSessionTemplate {
-  id          Int      @id @default(autoincrement())
-  owner_id    String?
-  name        String
-  description String?
-  created_at  DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  owner_id     String?
+  name         String
+  description  String?
+  created_at   DateTime  @default(now())
+  archived_at  DateTime?
 
-  owner             User?              @relation(fields: [owner_id], references: [userId])
-  template_tasks    TemplateTask[]
-  chalets           Chalet[]
-  cleaning_sessions CleaningSession[]
+  owner              User?              @relation(fields: [owner_id], references: [userId])
+  template_tasks     TemplateTask[]
+  cleaning_sessions  CleaningSession[]
+
+  @@index([owner_id, id], map: "idx_cleaning_session_templates_owner_id")
 }
 
 model TemplateTask {
@@ -230,8 +233,7 @@ model CleaningSession {
 
 // =========================================================
 // CLEANING SESSION TASKS
-// Snapshotted from TemplateTask (via the chalet's default
-// template, or an override) when a session is created.
+// Snapshotted from TemplateTask when a session is created.
 // =========================================================
 
 model CleaningSessionTask {
