@@ -128,7 +128,7 @@ model Chalet {
   @@index([owner_id, id], map: "idx_chalets_owner_id")
 }
 
- // TODO: Reached here
+ 
 model ChaletImage {
   id            Int      @id @default(autoincrement())
   chalet_id     Int
@@ -140,7 +140,7 @@ model ChaletImage {
 
   chalet Chalet @relation(fields: [chalet_id], references: [id])
 
-  @@index([chalet_id], name: "idx_chalet_images_chalet_id")
+  @@index([chalet_id], map: "idx_chalet_images_chalet_id")
 }
 
 // =========================================================
