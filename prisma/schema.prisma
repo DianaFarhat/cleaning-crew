@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  output   = "../src/app/generated/prisma"
 }
 
 datasource db {
@@ -67,44 +67,44 @@ enum NotificationType {
 // =========================================================
 
 model User {
-  userId              String          @id @default(uuid())
-  username            String
-  role                UserRole
-  email               String          @unique
-  email_verified      Boolean         @default(false)
-  email_verified_at   DateTime?
-  password_hash       String
-  password_changed_at DateTime?
-  phone_number        String //TODO: This shouldn't be nullable
-  profile_image       String?
-  cleaner_status      CleanerStatus?
-  created_at          DateTime        @default(now())
-  updated_at          DateTime        @updatedAt
+  userId            String          @id @default(uuid())
+  username          String
+  role              UserRole
+  email             String          @unique
+  emailVerified     Boolean         @default(false) @map("email_verified")
+  emailVerifiedAt   DateTime?       @map("email_verified_at")
+  passwordHash      String          @map("password_hash")
+  passwordChangedAt DateTime?       @map("password_changed_at")
+  phoneNumber       String          @map("phone_number") //TODO: This shouldn't be nullable
+  profileImage      String?         @map("profile_image")
+  cleanerStatus     CleanerStatus?  @map("cleaner_status")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
 
-  availability_slots          AvailabilitySlot[]
-  chalets                     Chalet[]
-  cleaning_session_templates  CleaningSessionTemplate[]
-  owned_cleaning_sessions     CleaningSession[] @relation("SessionOwner")
-  cleaner_cleaning_sessions   CleaningSession[] @relation("SessionCleaner")
-  cancelled_cleaning_sessions CleaningSession[] @relation("SessionCancelledBy")
-  notifications               Notification[]
+  availabilitySlots          AvailabilitySlot[]
+  chalets                    Chalet[]
+  cleaningSessionTemplates   CleaningSessionTemplate[]
+  ownedCleaningSessions      CleaningSession[] @relation("SessionOwner")
+  cleanerCleaningSessions    CleaningSession[] @relation("SessionCleaner")
+  cancelledCleaningSessions  CleaningSession[] @relation("SessionCancelledBy")
+  notifications              Notification[]
 
   @@index([role, username], name: "idx_users_role_username")
 }
 
 model AvailabilitySlot {
-  id         Int      @id @default(autoincrement())
-  user_id    String
-  date       DateTime @db.Date
-  start_time DateTime @db.Time
-  end_time   DateTime @db.Time
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  date      DateTime @db.Date
+  startTime DateTime @db.Time @map("start_time")
+  endTime   DateTime @db.Time @map("end_time")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  cleaner User @relation(fields: [user_id], references: [userId], onDelete: Cascade)
+  cleaner User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  @@unique([user_id, date, start_time, end_time])
-  @@index([user_id, date], map: "idx_availability_user_date")
+  @@unique([userId, date, startTime, endTime])
+  @@index([userId, date], map: "idx_availability_user_date")
 }
 
 // =========================================================
@@ -112,37 +112,37 @@ model AvailabilitySlot {
 // =========================================================
 
 model Chalet {
-  id                   Int      @id @default(autoincrement())
-  owner_id             String
-  name                 String
-  location             String
-  latitude             Decimal? @db.Decimal(10, 8)
-  longitude            Decimal? @db.Decimal(11, 8)
-  access_instructions  String?
-  permanent_notes      String?
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  ownerId             String   @map("owner_id")
+  name                String
+  location            String
+  latitude            Decimal? @db.Decimal(10, 8)
+  longitude           Decimal? @db.Decimal(11, 8)
+  accessInstructions  String?  @map("access_instructions")
+  permanentNotes      String?  @map("permanent_notes")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
-  owner              User              @relation(fields: [owner_id], references: [userId])
-  chalet_images      ChaletImage[]
-  cleaning_sessions  CleaningSession[]
+  owner             User              @relation(fields: [ownerId], references: [userId])
+  chaletImages      ChaletImage[]
+  cleaningSessions  CleaningSession[]
 
-  @@index([owner_id, id], map: "idx_chalets_owner_id")
+  @@index([ownerId, id], map: "idx_chalets_owner_id")
 }
 
  
 model ChaletImage {
-  id            Int      @id @default(autoincrement())
-  chalet_id     Int
-  storage_key   String
-  url           String?
-  is_cover      Boolean  @default(false)
-  display_order Int?
-  uploaded_at   DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  chaletId     Int      @map("chalet_id")
+  storageKey   String   @map("storage_key")
+  url          String?
+  isCover      Boolean  @default(false) @map("is_cover")
+  displayOrder Int?     @map("display_order")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
 
-  chalet Chalet @relation(fields: [chalet_id], references: [id])
+  chalet Chalet @relation(fields: [chaletId], references: [id])
 
-  @@index([chalet_id], map: "idx_chalet_images_chalet_id")
+  @@index([chaletId], map: "idx_chalet_images_chalet_id")
 }
 
 // =========================================================
@@ -156,34 +156,34 @@ model ChaletImage {
 // =========================================================
 
 model CleaningSessionTemplate {
-  id           Int       @id @default(autoincrement())
-  owner_id     String?
-  name         String
-  description  String?
-  created_at   DateTime  @default(now())
-  archived_at  DateTime?
+  id          Int       @id @default(autoincrement())
+  ownerId     String?   @map("owner_id")
+  name        String
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  archivedAt  DateTime? @map("archived_at")
 
-  owner              User?              @relation(fields: [owner_id], references: [userId])
-  template_tasks     TemplateTask[]
-  cleaning_sessions  CleaningSession[]
+  owner             User?              @relation(fields: [ownerId], references: [userId])
+  templateTasks     TemplateTask[]
+  cleaningSessions  CleaningSession[]
 
-  @@index([owner_id, id], map: "idx_cleaning_session_templates_owner_id")
+  @@index([ownerId, id], map: "idx_cleaning_session_templates_owner_id")
 }
 
 model TemplateTask {
-  id                            Int       @id @default(autoincrement())
-  cleaning_session_template_id Int
-  name                          String
-  description                   String?
-  room                          String?
-  requires_cleaner_photo        Boolean   @default(false)
-  owner_reference_image_url     String?
-  archived_at                   DateTime?
+  id                         Int       @id @default(autoincrement())
+  cleaningSessionTemplateId Int       @map("cleaning_session_template_id")
+  name                       String
+  description                String?
+  room                        String?
+  requiresCleanerPhoto        Boolean   @default(false) @map("requires_cleaner_photo")
+  ownerReferenceImageUrl      String?   @map("owner_reference_image_url")
+  archivedAt                  DateTime? @map("archived_at")
 
-  cleaning_session_template CleaningSessionTemplate @relation(fields: [cleaning_session_template_id], references: [id])
-  cleaning_session_tasks    CleaningSessionTask[]
+  cleaningSessionTemplate CleaningSessionTemplate @relation(fields: [cleaningSessionTemplateId], references: [id])
+  cleaningSessionTasks    CleaningSessionTask[]
 
-  @@index([cleaning_session_template_id], name: "idx_template_tasks_template_id")
+  @@index([cleaningSessionTemplateId], name: "idx_template_tasks_template_id")
 }
 
 // =========================================================
@@ -191,46 +191,46 @@ model TemplateTask {
 // =========================================================
 
 model CleaningSession {
-  id                            Int      @id @default(autoincrement())
-  chalet_id                     Int
-  owner_id                      String
-  cleaner_id                    String?
-  cleaning_session_template_id  Int?
+  id                         Int      @id @default(autoincrement())
+  chaletId                   Int      @map("chalet_id")
+  ownerId                    String   @map("owner_id")
+  cleanerId                  String?  @map("cleaner_id")
+  cleaningSessionTemplateId  Int?     @map("cleaning_session_template_id")
 
-  session_date DateTime @db.Date
-  start_time   DateTime @db.Time
-  end_time     DateTime @db.Time
+  sessionDate DateTime @db.Date @map("session_date")
+  startTime   DateTime @db.Time @map("start_time")
+  endTime     DateTime @db.Time @map("end_time")
 
-  assignment_status    AssignmentStatus @default(unassigned)
-  completion_status    CompletionStatus @default(upcoming)
-  payment_status       PaymentStatus    @default(pending)
-  payment_received_at  DateTime?
+  assignmentStatus   AssignmentStatus @default(unassigned) @map("assignment_status")
+  completionStatus   CompletionStatus @default(upcoming) @map("completion_status")
+  paymentStatus      PaymentStatus    @default(pending) @map("payment_status")
+  paymentReceivedAt  DateTime?        @map("payment_received_at")
 
-  hourly_rate Decimal  @default(14.00) @db.Decimal(10, 2)
-  total_cost  Decimal? @db.Decimal(10, 2)
+  hourlyRate Decimal  @default(14.00) @db.Decimal(10, 2) @map("hourly_rate")
+  totalCost  Decimal? @db.Decimal(10, 2) @map("total_cost")
 
-  cancellation_reason String?
-  cancelled_at        DateTime?
-  cancelled_by         String?
+  cancellationReason String?   @map("cancellation_reason")
+  cancelledAt        DateTime? @map("cancelled_at")
+  cancelledBy        String?   @map("cancelled_by")
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  chalet                     Chalet                    @relation(fields: [chalet_id], references: [id])
-  owner                      User                      @relation("SessionOwner", fields: [owner_id], references: [userId])
-  cleaner                    User?                     @relation("SessionCleaner", fields: [cleaner_id], references: [userId])
-  cleaning_session_template  CleaningSessionTemplate?  @relation(fields: [cleaning_session_template_id], references: [id])
-  cancelled_by_user          User?                     @relation("SessionCancelledBy", fields: [cancelled_by], references: [userId])
+  chalet                    Chalet                    @relation(fields: [chaletId], references: [id])
+  owner                     User                      @relation("SessionOwner", fields: [ownerId], references: [userId])
+  cleaner                   User?                     @relation("SessionCleaner", fields: [cleanerId], references: [userId])
+  cleaningSessionTemplate   CleaningSessionTemplate?  @relation(fields: [cleaningSessionTemplateId], references: [id])
+  cancelledByUser           User?                     @relation("SessionCancelledBy", fields: [cancelledBy], references: [userId])
 
-  cleaning_session_tasks CleaningSessionTask[]
+  cleaningSessionTasks CleaningSessionTask[]
 
-  @@index([chalet_id, session_date], name: "idx_cleaning_sessions_chalet_date")
-  @@index([owner_id, session_date], name: "idx_cleaning_sessions_owner_date")
-  @@index([cleaner_id, session_date], name: "idx_cleaning_sessions_cleaner_date")
-  @@index([session_date], name: "idx_cleaning_sessions_date")
-  @@index([assignment_status], name: "idx_cleaning_sessions_assignment_status")
-  @@index([completion_status], name: "idx_cleaning_sessions_completion_status")
-  @@index([payment_status], name: "idx_cleaning_sessions_payment_status")
+  @@index([chaletId, sessionDate], name: "idx_cleaning_sessions_chalet_date")
+  @@index([ownerId, sessionDate], name: "idx_cleaning_sessions_owner_date")
+  @@index([cleanerId, sessionDate], name: "idx_cleaning_sessions_cleaner_date")
+  @@index([sessionDate], name: "idx_cleaning_sessions_date")
+  @@index([assignmentStatus], name: "idx_cleaning_sessions_assignment_status")
+  @@index([completionStatus], name: "idx_cleaning_sessions_completion_status")
+  @@index([paymentStatus], name: "idx_cleaning_sessions_payment_status")
 }
 
 // =========================================================
@@ -239,33 +239,33 @@ model CleaningSession {
 // =========================================================
 
 model CleaningSessionTask {
-  id                          Int       @id @default(autoincrement())
-  cleaning_session_id         Int
-  template_task_id            Int?
-  name                        String
-  description                 String?
-  room                        String?
-  requires_cleaner_photo      Boolean   @default(false)
-  owner_reference_image_url   String?
-  status                      CleaningSessionTaskStatus @default(pending)
-  completed_at                DateTime?
-  archived_at                 DateTime?
+  id                       Int       @id @default(autoincrement())
+  cleaningSessionId        Int       @map("cleaning_session_id")
+  templateTaskId           Int?      @map("template_task_id")
+  name                     String
+  description              String?
+  room                     String?
+  requiresCleanerPhoto     Boolean   @default(false) @map("requires_cleaner_photo")
+  ownerReferenceImageUrl   String?   @map("owner_reference_image_url")
+  status                   CleaningSessionTaskStatus @default(pending)
+  completedAt              DateTime? @map("completed_at")
+  archivedAt               DateTime? @map("archived_at")
 
-  cleaning_session CleaningSession @relation(fields: [cleaning_session_id], references: [id])
-  template_task    TemplateTask?   @relation(fields: [template_task_id], references: [id])
-  task_images      TaskImage[]
+  cleaningSession CleaningSession @relation(fields: [cleaningSessionId], references: [id])
+  templateTask    TemplateTask?   @relation(fields: [templateTaskId], references: [id])
+  taskImages      TaskImage[]
 
   @@index([id], name: "idx_cleaning_session_tasks_id")
 }
 
 model TaskImage {
-  id                        Int      @id @default(autoincrement())
-  cleaning_session_task_id  Int
-  storage_key               String
-  url                       String?
-  uploaded_at                DateTime @default(now())
+  id                     Int      @id @default(autoincrement())
+  cleaningSessionTaskId  Int      @map("cleaning_session_task_id")
+  storageKey             String   @map("storage_key")
+  url                    String?
+  uploadedAt             DateTime @default(now()) @map("uploaded_at")
 
-  cleaning_session_task CleaningSessionTask @relation(fields: [cleaning_session_task_id], references: [id])
+  cleaningSessionTask CleaningSessionTask @relation(fields: [cleaningSessionTaskId], references: [id])
 }
 
 // =========================================================
@@ -273,15 +273,15 @@ model TaskImage {
 // =========================================================
 
 model Notification {
-  id                   Int              @id @default(autoincrement())
-  user_id              String
-  type                 NotificationType
-  title                String
-  message              String
-  related_entity_type  String?
-  related_entity_id    Int?
-  is_read              Boolean          @default(false)
-  created_at           DateTime         @default(now())
+  id                Int              @id @default(autoincrement())
+  userId            String           @map("user_id")
+  type              NotificationType
+  title             String
+  message           String
+  relatedEntityType String?          @map("related_entity_type")
+  relatedEntityId   Int?             @map("related_entity_id")
+  isRead            Boolean          @default(false) @map("is_read")
+  createdAt         DateTime         @default(now()) @map("created_at")
 
-  user User @relation(fields: [user_id], references: [userId])
+  user User @relation(fields: [userId], references: [userId])
 }

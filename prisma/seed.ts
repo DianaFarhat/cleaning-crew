@@ -63,10 +63,10 @@ async function main() {
       username: "Jad Khoury",
       role: "admin",
       email: "jad.khoury@yallacrew.com",
-      email_verified: true,
-      email_verified_at: new Date(),
-      password_hash: "passwordHash",
-      phone_number: "+96170123456",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      passwordHash: "passwordHash",
+      phoneNumber: "+96170123456",
     },
   });
 
@@ -80,11 +80,11 @@ async function main() {
       username: "Maya Fares",
       role: "cleaner",
       email: "maya.fares@yallacrew.com",
-      email_verified: true,
-      email_verified_at: new Date(),
-      password_hash: "passwordHash",
-      phone_number: "+96171234567",
-      cleaner_status: "active",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      passwordHash: "passwordHash",
+      phoneNumber: "+96171234567",
+      cleanerStatus: "active",
     },
   });
 
@@ -94,11 +94,11 @@ async function main() {
       username: "Rami Nasrallah",
       role: "cleaner",
       email: "rami.nasrallah@yallacrew.com",
-      email_verified: true,
-      email_verified_at: new Date(),
-      password_hash: "passwordHash",
-      phone_number: "+96176345678",
-      cleaner_status: "active",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      passwordHash: "passwordHash",
+      phoneNumber: "+96176345678",
+      cleanerStatus: "active",
     },
   });
 
@@ -108,11 +108,11 @@ async function main() {
       username: "Sara Nassar",
       role: "cleaner",
       email: "sara.nassar@yallacrew.com",
-      email_verified: true,
-      email_verified_at: new Date(),
-      password_hash: "passwordHash",
-      phone_number: "+96170111222",
-      cleaner_status: "inactive",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      passwordHash: "passwordHash",
+      phoneNumber: "+96170111222",
+      cleanerStatus: "inactive",
     },
   });
 
@@ -126,11 +126,11 @@ async function main() {
       username: "Karim Aoun",
       role: "owner",
       email: "karim.aoun@gmail.com",
-      email_verified: true,
-      email_verified_at: new Date(),
-      password_hash: "passwordHash",
-      phone_number: "+96178456789",
-      profile_image: "https://example.com/profiles/karim.jpg",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      passwordHash: "passwordHash",
+      phoneNumber: "+96178456789",
+      profileImage: "https://example.com/profiles/karim.jpg",
     },
   });
 
@@ -140,11 +140,11 @@ async function main() {
       username: "Layal Haddad",
       role: "owner",
       email: "layal.haddad@gmail.com",
-      email_verified: false,
-      email_verified_at: null,
-      password_hash: "passwordHash",
-      phone_number: "+96179567890",
-      profile_image: null,
+      emailVerified: false,
+      emailVerifiedAt: null,
+      passwordHash: "passwordHash",
+      phoneNumber: "+96179567890",
+      profileImage: null,
     },
   });
 
@@ -156,22 +156,22 @@ async function main() {
   await prisma.availabilitySlot.createMany({
     data: [
       {
-        user_id: cleanerAvailable.userId,
+        userId: cleanerAvailable.userId,
         date: dateOnly(1),
-        start_time: timeOnly(9),
-        end_time: timeOnly(13),
+        startTime: timeOnly(9),
+        endTime: timeOnly(13),
       },
       {
-        user_id: cleanerAvailable.userId,
+        userId: cleanerAvailable.userId,
         date: dateOnly(1),
-        start_time: timeOnly(14),
-        end_time: timeOnly(18),
+        startTime: timeOnly(14),
+        endTime: timeOnly(18),
       },
       {
-        user_id: cleanerAvailable.userId,
+        userId: cleanerAvailable.userId,
         date: dateOnly(3),
-        start_time: timeOnly(10),
-        end_time: timeOnly(16),
+        startTime: timeOnly(10),
+        endTime: timeOnly(16),
       },
     ],
   });
@@ -179,20 +179,20 @@ async function main() {
   // Active cleaner with availability, but we'll book part of it
   await prisma.availabilitySlot.create({
     data: {
-      user_id: cleanerBusy.userId,
+      userId: cleanerBusy.userId,
       date: dateOnly(1),
-      start_time: timeOnly(9),
-      end_time: timeOnly(17),
+      startTime: timeOnly(9),
+      endTime: timeOnly(17),
     },
   });
 
   // Deliberately has availability despite being inactive
   await prisma.availabilitySlot.create({
     data: {
-      user_id: cleanerInactive.userId,
+      userId: cleanerInactive.userId,
       date: dateOnly(1),
-      start_time: timeOnly(9),
-      end_time: timeOnly(17),
+      startTime: timeOnly(9),
+      endTime: timeOnly(17),
     },
   });
 
@@ -203,14 +203,14 @@ async function main() {
   // Has upcoming work
   const chaletActive = await prisma.chalet.create({
     data: {
-      owner_id: ownerMain.userId,
+      ownerId: ownerMain.userId,
       name: "Cedars Chalet",
       location: "Faraya, Lebanon",
       latitude: 34.01000000,
       longitude: 35.83000000,
-      access_instructions:
+      accessInstructions:
         "Key is available in the lockbox beside the entrance.",
-      permanent_notes:
+      permanentNotes:
         "Use wood-safe products on the living room floor.",
     },
   });
@@ -218,20 +218,20 @@ async function main() {
   // Has historical sessions
   const chaletHistory = await prisma.chalet.create({
     data: {
-      owner_id: ownerMain.userId,
+      ownerId: ownerMain.userId,
       name: "Mountain View Chalet",
       location: "Kfardebian, Lebanon",
       latitude: 33.99000000,
       longitude: 35.84000000,
-      access_instructions: null,
-      permanent_notes: null,
+      accessInstructions: null,
+      permanentNotes: null,
     },
   });
 
   // No sessions — useful for deletion scenario
   const chaletEmpty = await prisma.chalet.create({
     data: {
-      owner_id: ownerMain.userId,
+      ownerId: ownerMain.userId,
       name: "Pine Retreat",
       location: "Faqra, Lebanon",
       latitude: 33.98000000,
@@ -247,18 +247,18 @@ async function main() {
   await prisma.chaletImage.createMany({
     data: [
       {
-        chalet_id: chaletActive.id,
-        storage_key: "chalets/cedars/front.jpg",
+        chaletId: chaletActive.id,
+        storageKey: "chalets/cedars/front.jpg",
         url: "https://example.com/chalets/cedars/front.jpg",
-        is_cover: true,
-        display_order: 1,
+        isCover: true,
+        displayOrder: 1,
       },
       {
-        chalet_id: chaletActive.id,
-        storage_key: "chalets/cedars/living-room.jpg",
+        chaletId: chaletActive.id,
+        storageKey: "chalets/cedars/living-room.jpg",
         url: "https://example.com/chalets/cedars/living-room.jpg",
-        is_cover: false,
-        display_order: 2,
+        isCover: false,
+        displayOrder: 2,
       },
     ],
   });
@@ -268,11 +268,11 @@ async function main() {
   // One image
   await prisma.chaletImage.create({
     data: {
-      chalet_id: chaletEmpty.id,
-      storage_key: "chalets/pine/front.jpg",
+      chaletId: chaletEmpty.id,
+      storageKey: "chalets/pine/front.jpg",
       url: "https://example.com/chalets/pine/front.jpg",
-      is_cover: true,
-      display_order: 1,
+      isCover: true,
+      displayOrder: 1,
     },
   });
 
@@ -283,7 +283,7 @@ async function main() {
   const standardTemplate =
     await prisma.cleaningSessionTemplate.create({
       data: {
-        owner_id: ownerMain.userId,
+        ownerId: ownerMain.userId,
         name: "Standard Chalet Cleaning",
         description: "Regular chalet cleaning checklist.",
       },
@@ -292,7 +292,7 @@ async function main() {
   const deepCleanTemplate =
     await prisma.cleaningSessionTemplate.create({
       data: {
-        owner_id: ownerMain.userId,
+        ownerId: ownerMain.userId,
         name: "Deep Cleaning",
         description: "More detailed cleaning checklist.",
       },
@@ -304,43 +304,43 @@ async function main() {
 
   const kitchenSurfaces = await prisma.templateTask.create({
     data: {
-      cleaning_session_template_id: standardTemplate.id,
+      cleaningSessionTemplateId: standardTemplate.id,
       name: "Clean kitchen surfaces",
       description: "Wipe counters and exterior surfaces.",
       room: "Kitchen",
-      requires_cleaner_photo: false,
+      requiresCleanerPhoto: false,
     },
   });
 
   const refrigerator = await prisma.templateTask.create({
     data: {
-      cleaning_session_template_id: standardTemplate.id,
+      cleaningSessionTemplateId: standardTemplate.id,
       name: "Clean refrigerator",
       description: "Clean refrigerator shelves and surfaces.",
       room: "Kitchen",
-      requires_cleaner_photo: true,
+      requiresCleanerPhoto: true,
     },
   });
 
   const masterBed = await prisma.templateTask.create({
     data: {
-      cleaning_session_template_id: standardTemplate.id,
+      cleaningSessionTemplateId: standardTemplate.id,
       name: "Make master bed",
       description: "Prepare the bed as shown in the reference photo.",
       room: "Bedroom",
-      requires_cleaner_photo: true,
-      owner_reference_image_url:
+      requiresCleanerPhoto: true,
+      ownerReferenceImageUrl:
         "https://example.com/reference/master-bed.jpg",
     },
   });
 
   const sweepBalcony = await prisma.templateTask.create({
     data: {
-      cleaning_session_template_id: standardTemplate.id,
+      cleaningSessionTemplateId: standardTemplate.id,
       name: "Sweep balcony",
       description: null,
       room: "Balcony",
-      requires_cleaner_photo: false,
+      requiresCleanerPhoto: false,
     },
   });
 
@@ -348,16 +348,16 @@ async function main() {
   await prisma.templateTask.createMany({
     data: [
       {
-        cleaning_session_template_id: deepCleanTemplate.id,
+        cleaningSessionTemplateId: deepCleanTemplate.id,
         name: "Deep clean oven",
         room: "Kitchen",
-        requires_cleaner_photo: true,
+        requiresCleanerPhoto: true,
       },
       {
-        cleaning_session_template_id: deepCleanTemplate.id,
+        cleaningSessionTemplateId: deepCleanTemplate.id,
         name: "Clean bathroom tiles",
         room: "Bathroom",
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
       },
     ],
   });
@@ -370,21 +370,21 @@ async function main() {
   const sessionUpcomingAssigned =
     await prisma.cleaningSession.create({
       data: {
-        chalet_id: chaletActive.id,
-        owner_id: ownerMain.userId,
-        cleaner_id: cleanerAvailable.userId,
-        cleaning_session_template_id: standardTemplate.id,
+        chaletId: chaletActive.id,
+        ownerId: ownerMain.userId,
+        cleanerId: cleanerAvailable.userId,
+        cleaningSessionTemplateId: standardTemplate.id,
 
-        session_date: dateOnly(3),
-        start_time: timeOnly(10),
-        end_time: timeOnly(13),
+        sessionDate: dateOnly(3),
+        startTime: timeOnly(10),
+        endTime: timeOnly(13),
 
-        assignment_status: "assigned",
-        completion_status: "upcoming",
-        payment_status: "pending",
+        assignmentStatus: "assigned",
+        completionStatus: "upcoming",
+        paymentStatus: "pending",
 
-        hourly_rate: 14,
-        total_cost: 42,
+        hourlyRate: 14,
+        totalCost: 42,
       },
     });
 
@@ -392,23 +392,23 @@ async function main() {
   const sessionUpcomingUnassigned =
     await prisma.cleaningSession.create({
       data: {
-        chalet_id: chaletActive.id,
-        owner_id: ownerMain.userId,
+        chaletId: chaletActive.id,
+        ownerId: ownerMain.userId,
 
         // Blank task-list request: deliberately no template
-        cleaning_session_template_id: null,
-        cleaner_id: null,
+        cleaningSessionTemplateId: null,
+        cleanerId: null,
 
-        session_date: dateOnly(2),
-        start_time: timeOnly(19),
-        end_time: timeOnly(21),
+        sessionDate: dateOnly(2),
+        startTime: timeOnly(19),
+        endTime: timeOnly(21),
 
-        assignment_status: "unassigned",
-        completion_status: "upcoming",
-        payment_status: "pending",
+        assignmentStatus: "unassigned",
+        completionStatus: "upcoming",
+        paymentStatus: "pending",
 
-        hourly_rate: 14,
-        total_cost: 28,
+        hourlyRate: 14,
+        totalCost: 28,
       },
     });
 
@@ -420,21 +420,21 @@ async function main() {
   const sessionInProgress =
     await prisma.cleaningSession.create({
       data: {
-        chalet_id: chaletActive.id,
-        owner_id: ownerMain.userId,
-        cleaner_id: cleanerBusy.userId,
-        cleaning_session_template_id: standardTemplate.id,
+        chaletId: chaletActive.id,
+        ownerId: ownerMain.userId,
+        cleanerId: cleanerBusy.userId,
+        cleaningSessionTemplateId: standardTemplate.id,
 
-        session_date: dateOnly(0),
-        start_time: timeOnly(9),
-        end_time: timeOnly(12),
+        sessionDate: dateOnly(0),
+        startTime: timeOnly(9),
+        endTime: timeOnly(12),
 
-        assignment_status: "assigned",
-        completion_status: "in_progress",
-        payment_status: "pending",
+        assignmentStatus: "assigned",
+        completionStatus: "in_progress",
+        paymentStatus: "pending",
 
-        hourly_rate: 14,
-        total_cost: 42,
+        hourlyRate: 14,
+        totalCost: 42,
       },
     });
 
@@ -442,21 +442,21 @@ async function main() {
   const sessionCompletedPending =
     await prisma.cleaningSession.create({
       data: {
-        chalet_id: chaletHistory.id,
-        owner_id: ownerMain.userId,
-        cleaner_id: cleanerAvailable.userId,
-        cleaning_session_template_id: standardTemplate.id,
+        chaletId: chaletHistory.id,
+        ownerId: ownerMain.userId,
+        cleanerId: cleanerAvailable.userId,
+        cleaningSessionTemplateId: standardTemplate.id,
 
-        session_date: dateOnly(-3),
-        start_time: timeOnly(10),
-        end_time: timeOnly(14),
+        sessionDate: dateOnly(-3),
+        startTime: timeOnly(10),
+        endTime: timeOnly(14),
 
-        assignment_status: "assigned",
-        completion_status: "completed",
-        payment_status: "pending",
+        assignmentStatus: "assigned",
+        completionStatus: "completed",
+        paymentStatus: "pending",
 
-        hourly_rate: 14,
-        total_cost: 56,
+        hourlyRate: 14,
+        totalCost: 56,
       },
     });
 
@@ -464,22 +464,22 @@ async function main() {
   const sessionCompletedReceived =
     await prisma.cleaningSession.create({
       data: {
-        chalet_id: chaletHistory.id,
-        owner_id: ownerMain.userId,
-        cleaner_id: cleanerAvailable.userId,
-        cleaning_session_template_id: deepCleanTemplate.id,
+        chaletId: chaletHistory.id,
+        ownerId: ownerMain.userId,
+        cleanerId: cleanerAvailable.userId,
+        cleaningSessionTemplateId: deepCleanTemplate.id,
 
-        session_date: dateOnly(-7),
-        start_time: timeOnly(9),
-        end_time: timeOnly(13),
+        sessionDate: dateOnly(-7),
+        startTime: timeOnly(9),
+        endTime: timeOnly(13),
 
-        assignment_status: "assigned",
-        completion_status: "completed",
-        payment_status: "received",
-        payment_received_at: dateOnly(-6),
+        assignmentStatus: "assigned",
+        completionStatus: "completed",
+        paymentStatus: "received",
+        paymentReceivedAt: dateOnly(-6),
 
-        hourly_rate: 14,
-        total_cost: 56,
+        hourlyRate: 14,
+        totalCost: 56,
       },
     });
 
@@ -487,25 +487,25 @@ async function main() {
   const sessionCancelled =
     await prisma.cleaningSession.create({
       data: {
-        chalet_id: chaletHistory.id,
-        owner_id: ownerMain.userId,
-        cleaner_id: cleanerBusy.userId,
-        cleaning_session_template_id: standardTemplate.id,
+        chaletId: chaletHistory.id,
+        ownerId: ownerMain.userId,
+        cleanerId: cleanerBusy.userId,
+        cleaningSessionTemplateId: standardTemplate.id,
 
-        session_date: dateOnly(-2),
-        start_time: timeOnly(15),
-        end_time: timeOnly(17),
+        sessionDate: dateOnly(-2),
+        startTime: timeOnly(15),
+        endTime: timeOnly(17),
 
-        assignment_status: "assigned",
-        completion_status: "cancelled",
-        payment_status: "pending",
+        assignmentStatus: "assigned",
+        completionStatus: "cancelled",
+        paymentStatus: "pending",
 
-        hourly_rate: 14,
-        total_cost: 28,
+        hourlyRate: 14,
+        totalCost: 28,
 
-        cancellation_reason: "Owner unavailable",
-        cancelled_at: dateOnly(-3),
-        cancelled_by: ownerMain.userId,
+        cancellationReason: "Owner unavailable",
+        cancelledAt: dateOnly(-3),
+        cancelledBy: ownerMain.userId,
       },
     });
 
@@ -521,32 +521,32 @@ async function main() {
   await prisma.cleaningSessionTask.createMany({
     data: [
       {
-        cleaning_session_id: sessionUpcomingAssigned.id,
-        template_task_id: kitchenSurfaces.id,
+        cleaningSessionId: sessionUpcomingAssigned.id,
+        templateTaskId: kitchenSurfaces.id,
         name: kitchenSurfaces.name,
         description: kitchenSurfaces.description,
         room: kitchenSurfaces.room,
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
         status: "pending",
       },
       {
-        cleaning_session_id: sessionUpcomingAssigned.id,
-        template_task_id: refrigerator.id,
+        cleaningSessionId: sessionUpcomingAssigned.id,
+        templateTaskId: refrigerator.id,
         name: refrigerator.name,
         description: refrigerator.description,
         room: refrigerator.room,
-        requires_cleaner_photo: true,
+        requiresCleanerPhoto: true,
         status: "pending",
       },
       {
-        cleaning_session_id: sessionUpcomingAssigned.id,
-        template_task_id: masterBed.id,
+        cleaningSessionId: sessionUpcomingAssigned.id,
+        templateTaskId: masterBed.id,
         name: masterBed.name,
         description: masterBed.description,
         room: masterBed.room,
-        requires_cleaner_photo: true,
-        owner_reference_image_url:
-          masterBed.owner_reference_image_url,
+        requiresCleanerPhoto: true,
+        ownerReferenceImageUrl:
+          masterBed.ownerReferenceImageUrl,
         status: "pending",
       },
     ],
@@ -560,19 +560,19 @@ async function main() {
   await prisma.cleaningSessionTask.createMany({
     data: [
       {
-        cleaning_session_id: sessionUpcomingUnassigned.id,
-        template_task_id: null,
+        cleaningSessionId: sessionUpcomingUnassigned.id,
+        templateTaskId: null,
         name: "Clean living room",
         room: "Living Room",
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
         status: "pending",
       },
       {
-        cleaning_session_id: sessionUpcomingUnassigned.id,
-        template_task_id: null,
+        cleaningSessionId: sessionUpcomingUnassigned.id,
+        templateTaskId: null,
         name: "Clean fireplace",
         room: "Living Room",
-        requires_cleaner_photo: true,
+        requiresCleanerPhoto: true,
         status: "pending",
       },
     ],
@@ -586,38 +586,38 @@ async function main() {
   const inProgressCompletedTask =
     await prisma.cleaningSessionTask.create({
       data: {
-        cleaning_session_id: sessionInProgress.id,
-        template_task_id: refrigerator.id,
+        cleaningSessionId: sessionInProgress.id,
+        templateTaskId: refrigerator.id,
         name: refrigerator.name,
         description: refrigerator.description,
         room: refrigerator.room,
-        requires_cleaner_photo: true,
+        requiresCleanerPhoto: true,
         status: "completed",
-        completed_at: new Date(),
+        completedAt: new Date(),
       },
     });
 
   await prisma.cleaningSessionTask.createMany({
     data: [
       {
-        cleaning_session_id: sessionInProgress.id,
-        template_task_id: kitchenSurfaces.id,
+        cleaningSessionId: sessionInProgress.id,
+        templateTaskId: kitchenSurfaces.id,
         name: kitchenSurfaces.name,
         description: kitchenSurfaces.description,
         room: kitchenSurfaces.room,
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
         status: "completed",
-        completed_at: new Date(),
+        completedAt: new Date(),
       },
       {
-        cleaning_session_id: sessionInProgress.id,
-        template_task_id: masterBed.id,
+        cleaningSessionId: sessionInProgress.id,
+        templateTaskId: masterBed.id,
         name: masterBed.name,
         description: masterBed.description,
         room: masterBed.room,
-        requires_cleaner_photo: true,
-        owner_reference_image_url:
-          masterBed.owner_reference_image_url,
+        requiresCleanerPhoto: true,
+        ownerReferenceImageUrl:
+          masterBed.ownerReferenceImageUrl,
         status: "pending",
       },
     ],
@@ -631,34 +631,34 @@ async function main() {
   const completedProofTask =
     await prisma.cleaningSessionTask.create({
       data: {
-        cleaning_session_id: sessionCompletedPending.id,
-        template_task_id: refrigerator.id,
+        cleaningSessionId: sessionCompletedPending.id,
+        templateTaskId: refrigerator.id,
         name: refrigerator.name,
         description: refrigerator.description,
         room: refrigerator.room,
-        requires_cleaner_photo: true,
+        requiresCleanerPhoto: true,
         status: "completed",
-        completed_at: dateOnly(-3),
+        completedAt: dateOnly(-3),
       },
     });
 
   await prisma.cleaningSessionTask.createMany({
     data: [
       {
-        cleaning_session_id: sessionCompletedPending.id,
-        template_task_id: kitchenSurfaces.id,
+        cleaningSessionId: sessionCompletedPending.id,
+        templateTaskId: kitchenSurfaces.id,
         name: kitchenSurfaces.name,
         room: kitchenSurfaces.room,
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
         status: "completed",
-        completed_at: dateOnly(-3),
+        completedAt: dateOnly(-3),
       },
       {
-        cleaning_session_id: sessionCompletedPending.id,
-        template_task_id: sweepBalcony.id,
+        cleaningSessionId: sessionCompletedPending.id,
+        templateTaskId: sweepBalcony.id,
         name: sweepBalcony.name,
         room: sweepBalcony.room,
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
         status: "skipped",
       },
     ],
@@ -671,20 +671,20 @@ async function main() {
   await prisma.cleaningSessionTask.createMany({
     data: [
       {
-        cleaning_session_id: sessionCompletedReceived.id,
+        cleaningSessionId: sessionCompletedReceived.id,
         name: "Deep clean oven",
         room: "Kitchen",
-        requires_cleaner_photo: true,
+        requiresCleanerPhoto: true,
         status: "completed",
-        completed_at: dateOnly(-7),
+        completedAt: dateOnly(-7),
       },
       {
-        cleaning_session_id: sessionCompletedReceived.id,
+        cleaningSessionId: sessionCompletedReceived.id,
         name: "Clean bathroom tiles",
         room: "Bathroom",
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
         status: "completed",
-        completed_at: dateOnly(-7),
+        completedAt: dateOnly(-7),
       },
     ],
   });
@@ -697,19 +697,19 @@ async function main() {
   await prisma.cleaningSessionTask.createMany({
     data: [
       {
-        cleaning_session_id: sessionCancelled.id,
-        template_task_id: kitchenSurfaces.id,
+        cleaningSessionId: sessionCancelled.id,
+        templateTaskId: kitchenSurfaces.id,
         name: kitchenSurfaces.name,
         room: kitchenSurfaces.room,
-        requires_cleaner_photo: false,
+        requiresCleanerPhoto: false,
         status: "pending",
       },
       {
-        cleaning_session_id: sessionCancelled.id,
-        template_task_id: refrigerator.id,
+        cleaningSessionId: sessionCancelled.id,
+        templateTaskId: refrigerator.id,
         name: refrigerator.name,
         room: refrigerator.room,
-        requires_cleaner_photo: true,
+        requiresCleanerPhoto: true,
         status: "pending",
       },
     ],
@@ -722,8 +722,8 @@ async function main() {
   // Proof-required completed task WITH proof
   await prisma.taskImage.create({
     data: {
-      cleaning_session_task_id: completedProofTask.id,
-      storage_key: "task-proof/refrigerator-after.jpg",
+      cleaningSessionTaskId: completedProofTask.id,
+      storageKey: "task-proof/refrigerator-after.jpg",
       url: "https://example.com/task-proof/refrigerator-after.jpg",
     },
   });
@@ -731,8 +731,8 @@ async function main() {
   // Another completed proof-required task with an image
   await prisma.taskImage.create({
     data: {
-      cleaning_session_task_id: inProgressCompletedTask.id,
-      storage_key: "task-proof/refrigerator-progress.jpg",
+      cleaningSessionTaskId: inProgressCompletedTask.id,
+      storageKey: "task-proof/refrigerator-progress.jpg",
       url: "https://example.com/task-proof/refrigerator-progress.jpg",
     },
   });
@@ -747,63 +747,63 @@ async function main() {
     data: [
       // Cleaner notifications
       {
-        user_id: cleanerAvailable.userId,
+        userId: cleanerAvailable.userId,
         type: "session_assigned",
         title: "New Cleaning Session",
         message: "You have been assigned to Cedars Chalet.",
-        related_entity_type: "cleaning_session",
-        related_entity_id: sessionUpcomingAssigned.id,
-        is_read: false,
+        relatedEntityType: "cleaning_session",
+        relatedEntityId: sessionUpcomingAssigned.id,
+        isRead: false,
       },
       {
-        user_id: cleanerBusy.userId,
+        userId: cleanerBusy.userId,
         type: "session_cancelled",
         title: "Session Cancelled",
         message: "A cleaning session has been cancelled.",
-        related_entity_type: "cleaning_session",
-        related_entity_id: sessionCancelled.id,
-        is_read: true,
+        relatedEntityType: "cleaning_session",
+        relatedEntityId: sessionCancelled.id,
+        isRead: true,
       },
       {
-        user_id: cleanerAvailable.userId,
+        userId: cleanerAvailable.userId,
         type: "session_updated",
         title: "Session Updated",
         message: "One of your assigned sessions was updated.",
-        related_entity_type: "cleaning_session",
-        related_entity_id: sessionUpcomingAssigned.id,
-        is_read: true,
+        relatedEntityType: "cleaning_session",
+        relatedEntityId: sessionUpcomingAssigned.id,
+        isRead: true,
       },
 
       // Owner notifications
       {
-        user_id: ownerMain.userId,
+        userId: ownerMain.userId,
         type: "session_started",
         title: "Cleaning Started",
         message: "Cleaning has started at Cedars Chalet.",
-        related_entity_type: "cleaning_session",
-        related_entity_id: sessionInProgress.id,
-        is_read: false,
+        relatedEntityType: "cleaning_session",
+        relatedEntityId: sessionInProgress.id,
+        isRead: false,
       },
       {
-        user_id: ownerMain.userId,
+        userId: ownerMain.userId,
         type: "session_completed",
         title: "Cleaning Completed",
         message: "Cleaning at Mountain View Chalet is complete.",
-        related_entity_type: "cleaning_session",
-        related_entity_id: sessionCompletedPending.id,
-        is_read: false,
+        relatedEntityType: "cleaning_session",
+        relatedEntityId: sessionCompletedPending.id,
+        isRead: false,
       },
 
       // Admin notification
       {
-        user_id: adminMain.userId,
+        userId: adminMain.userId,
         type: "session_unassigned_alert",
         title: "Unassigned Session",
         message:
           "A cleaning request could not be assigned to a cleaner.",
-        related_entity_type: "cleaning_session",
-        related_entity_id: sessionUpcomingUnassigned.id,
-        is_read: false,
+        relatedEntityType: "cleaning_session",
+        relatedEntityId: sessionUpcomingUnassigned.id,
+        isRead: false,
       },
     ],
   });
