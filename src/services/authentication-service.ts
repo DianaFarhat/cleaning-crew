@@ -34,4 +34,8 @@ export class AuthenticationService {
       throw new ServiceException('Token verification failed'); // rethrow unexpected errors
     }
   }
+
+  clearToken(token: string): void {
+    // TODO: Implement token blacklisting or revocation logic if needed
+  }
 }
