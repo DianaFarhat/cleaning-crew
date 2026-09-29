@@ -21,3 +21,10 @@ export class InvalidTokenException extends AuthenticationException {
   } 
 
 }
+
+export class InvalidCredentialsException extends AuthenticationException {
+  constructor() {
+    super('Invalid email or password');
+    this.name = 'InvalidCredentialsException';
+  }
+}

@@ -2,7 +2,7 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { TokenPayload } from '@/types/token';
 import { InvalidTokenException, TokenExpiredException } from '@/util/exceptions/http/AuthenticationException';
-import { ServiceException } from '@/util/exceptions/http/ServiceException';
+import { ServiceException } from '@/util/exceptions/ServiceException';
 
 export class AuthenticationService {
   
@@ -38,4 +38,7 @@ export class AuthenticationService {
   clearToken(token: string): void {
     // TODO: Implement token blacklisting or revocation logic if needed
   }
+
+
 }
+
