@@ -28,3 +28,10 @@ export class InvalidCredentialsException extends AuthenticationException {
     this.name = 'InvalidCredentialsException';
   }
 }
+
+export class AuthenticationFailedException extends AuthenticationException {
+  constructor() {
+    super('Authentication failed');
+    this.name = 'AuthenticationFailedException';
+  }
+} 
