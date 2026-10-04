@@ -8,8 +8,8 @@ const authService = new AuthenticationService();
 
 export function authenticate(handler: (req: AuthRequest) => Promise<Response>) {
   return async (req: AuthRequest) => {
-    // get token from header
-    const token = req.headers.get('authorization')?.split(' ')[1];
+    // get token from cookie
+    const token = req.cookies.get('token')?.value;
 
     // if no token then throw auth error
     if (!token) {

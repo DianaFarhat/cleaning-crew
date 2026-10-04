@@ -23,10 +23,9 @@ export const POST = withErrorHandler(async (req) => {
   const userId = await userService.validateUser(email, password);
   const token = authService.generateToken(userId);
 
-  return NextResponse.json({
-    message: 'Login successful',
-    token,
-  });
+  const res = NextResponse.json({ message: 'Login successful' });
+  authService.setTokenIntoCookie(res, token);
+  return res;
  
 });
 
