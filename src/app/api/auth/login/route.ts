@@ -20,13 +20,20 @@ export const POST = withErrorHandler(async (req) => {
     });
   }
 
-  const userId = await userService.validateUser(email, password);
-  const token = authService.generateToken(userId);
+  // validate user
+  try {
+    const userId = await userService.validateUser(email, password);
 
-  const res = NextResponse.json({ message: 'Login successful' });
-  authService.setTokenIntoCookie(res, token);
-  return res;
- 
+    const res = NextResponse.json({ message: 'Login successful' }, { status: 200 });
+    authService.persistAuthenticationTokens(res, userId);
+
+    return res;
+  } catch (error) {
+    if ((error as Error).message === 'User not found') {
+      throw new BadRequestException('Invalid email or password');
+    }
+    throw error; // let withErrorHandler deal with anything else
+  }
 });
 
 //I added, just to test the auth middleware, you can remove it later
