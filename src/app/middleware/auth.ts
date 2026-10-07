@@ -1,35 +1,41 @@
 // src/middleware/auth.ts
+import { NextResponse } from 'next/server';
 import { AuthRequest } from '@/types/token';
 import { AuthenticationService } from '@/services/authentication-service';
 import { AuthenticationFailedException } from '@/util/exceptions/http/AuthenticationException';
-import { NextResponse } from 'next/server';
 
 // todo add a singleton to the authentication service
 const authService = new AuthenticationService();
 
 export function authenticate(handler: (req: AuthRequest) => Promise<NextResponse>) {
   return async (req: AuthRequest) => {
-    const token = req.cookies.get('token')?.value;
+    let token = req.cookies.get('token')?.value;
     const refreshToken = req.cookies.get('refreshToken')?.value;
+    let newToken: string | undefined;
 
-    // Normal case: valid access token
-    if (token) {
-      const payload = authService.verifyToken(token);
-      req.userId = payload.userId;
-      return handler(req);
+    // if no token, try the refresh token
+    if (!token) {
+      if (!refreshToken) {
+        throw new AuthenticationFailedException();
+      }
+      newToken = authService.refreshToken(refreshToken);
+      token = newToken;
     }
 
-    // No access token: try the refresh token
-    if (refreshToken) {
-      const newToken = authService.refreshToken(refreshToken);
-      const payload = authService.verifyToken(newToken);
-      req.userId = payload.userId;
+    // verify token
+    const payload = authService.verifyToken(token);
 
-      const res = await handler(req);           // let the route build its response
-      authService.setTokenIntoCookie(res, newToken); // then attach the new cookie
-      return res;
+    // add the payload to the request
+    req.userId = payload.userId;
+
+    // call the route handler
+    const res = await handler(req);
+
+    // if we refreshed, attach the new cookie to the response
+    if (newToken) {
+      authService.setTokenIntoCookie(res, newToken);
     }
 
-    throw new AuthenticationFailedException();
+    return res;
   };
 }
