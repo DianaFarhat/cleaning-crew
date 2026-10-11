@@ -1,11 +1,10 @@
 // src/middleware/auth.ts
 import { NextResponse } from 'next/server';
 import { AuthRequest } from '@/types/token';
-import { AuthenticationService } from '@/services/authentication-service';
+import { authService } from '@/services/authentication-service';
 import { AuthenticationFailedException } from '@/util/exceptions/http/AuthenticationException';
 
-// todo add a singleton to the authentication service
-const authService = new AuthenticationService();
+
 
 export function authenticate(handler: (req: AuthRequest) => Promise<NextResponse>) {
   return async (req: AuthRequest) => {

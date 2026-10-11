@@ -1,13 +1,13 @@
 // app/api/auth/login/route.ts
 import { NextResponse } from 'next/server';
-import { AuthenticationService } from '@/services/authentication-service';
+import { authService } from '@/services/authentication-service';
 import { UserService } from '@/services/user-service';
 import { UserRepository } from '@/repository/user-repository';
 import { withErrorHandler } from '@/util/withErrorHandler';
 import { BadRequestException } from '@/util/exceptions/http/BadRequestException';
 import { authenticate } from '@/app/middleware/auth';
 
-const authService = new AuthenticationService();
+
 const userService = new UserService(new UserRepository());
 
 export const POST = withErrorHandler(async (req) => {

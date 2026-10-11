@@ -86,3 +86,5 @@ export class AuthenticationService {
 
 
 }
+
+export const authService = new AuthenticationService();
