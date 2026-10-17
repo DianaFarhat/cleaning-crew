@@ -11,7 +11,10 @@ export const userSchema = z.object({
   email: z.email(),
   emailVerified: z.boolean(),
   emailVerifiedAt: z.date().nullable(),
-  phoneNumber: z.string(),
+  phoneNumber: z.string().regex(
+  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
+  "Enter a valid Lebanese mobile number"
+  ),
   profileImage: z.url().nullable(),
   cleanerStatus: z.enum(CleanerStatus).nullable(),
   createdAt: z.date(),
@@ -23,7 +26,10 @@ export const userSchema = z.object({
 export const registerOwnerInputSchema = z.object({
   username: z.string().min(1),
   email: z.email(),
-  phoneNumber: z.string().min(1),
+  phoneNumber: z.string().regex(
+  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
+  "Enter a valid Lebanese mobile number"
+  ),
   password: z.string().min(8),
 });
 
@@ -32,7 +38,10 @@ export const registerOwnerInputSchema = z.object({
 export const createCleanerInputSchema = z.object({
   username: z.string().min(1),
   email: z.email(),
-  phoneNumber: z.string().min(1),
+  phoneNumber: z.string().regex(
+  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
+  "Enter a valid Lebanese mobile number"
+  ),
   cleanerStatus: z.enum(CleanerStatus),
 });
 
