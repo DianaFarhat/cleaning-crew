@@ -1,12 +1,9 @@
-// types/user.ts
+
 import { z } from "zod";
 import { UserRole, CleanerStatus } from "@/app/generated/prisma/enums";
 
-// ── Full entity — shape of a User as it's safe to hold and pass around
-// your app layers. passwordHash and passwordChangedAt are deliberately
-// NOT here — they never leave the repository layer. See user-repository.ts
-// for where the raw Prisma row (which does have both) gets parsed down
-// into this shape.
+// ── User entity (excludes sensitive fields) ──
+
 export const userSchema = z.object({
   userId: z.uuid(),
   username: z.string(),
@@ -14,26 +11,48 @@ export const userSchema = z.object({
   email: z.email(),
   emailVerified: z.boolean(),
   emailVerifiedAt: z.date().nullable(),
-  phoneNumber: z.string(),
+  phoneNumber: z.string().regex(
+  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
+  "Enter a valid Lebanese mobile number"
+  ),
   profileImage: z.url().nullable(),
   cleanerStatus: z.enum(CleanerStatus).nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export type User = z.infer<typeof userSchema>;
+// ── Owner registration input ──
 
-// Alias for clarity at call sites where "this has been stripped of
-// sensitive fields" is the point being made — currently identical to
-// User, since userSchema already excludes everything sensitive.
-export type SafeUser = User;
+export const registerOwnerInputSchema = z.object({
+  username: z.string().min(1),
+  email: z.email(),
+  phoneNumber: z.string().regex(
+  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
+  "Enter a valid Lebanese mobile number"
+  ),
+  password: z.string().min(8),
+});
 
-// ── Input schema for POST /users (admin creates a cleaner) ──
+// ── Admin creates cleaner input ──
+
 export const createCleanerInputSchema = z.object({
   username: z.string().min(1),
   email: z.email(),
-  phoneNumber: z.string().min(1),
+  phoneNumber: z.string().regex(
+  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
+  "Enter a valid Lebanese mobile number"
+  ),
   cleanerStatus: z.enum(CleanerStatus),
 });
 
-export type CreateCleanerInput = z.infer<typeof createCleanerInputSchema>;
+// ── Inferred TypeScript types ──
+
+export type User = z.infer<typeof userSchema>;
+
+export type SafeUser = User;
+
+export type RegisterOwnerInput =
+  z.infer<typeof registerOwnerInputSchema>;
+
+export type CreateCleanerInput =
+  z.infer<typeof createCleanerInputSchema>;
