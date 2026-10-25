@@ -25,22 +25,30 @@ function toOwnerCreateData(
 
 // 2. Service: coordinates the registration process
 export class OwnerRegistrationService {
-  static async registerOwner(
-    data: RegisterOwnerInput
-  ): Promise<SafeUser> {
-    const existingUser = await UserRepository.findByEmail(data.email);
+  static async registerOwner(data: RegisterOwnerInput): Promise<SafeUser> {
+  // 👀 fast check (catches 99% of cases)
+  const existingUser = await UserRepository.findByEmail(data.email);
+  if (existingUser) {
+    throw new ConflictException("Email already exists");
+  }
 
-    if (existingUser) {
-      throw new ConflictException("Email already exists");
-    }
+  const passwordHash = await bcrypt.hash(data.password, 10);
 
-    const passwordHash = await bcrypt.hash(data.password, 10);
-
+  try {
+    // 💾 try to save
     const newUser = await UserRepository.createUser(
       toOwnerCreateData(data, passwordHash)
     );
-
-    // Next: return a SafeUser and initiate email verification
     return userSchema.parse(newUser);
+  } catch (e) {
+    // 🛑 DB said "duplicate!" (P2002 = unique rule broken)
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === "P2002"
+    ) {
+      throw new ConflictException("Email already exists");
+    }
+    throw e; // 🤷 some other error → let it go
   }
+}
 }

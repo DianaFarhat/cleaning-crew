@@ -1,6 +1,10 @@
-
 import { z } from "zod";
 import { UserRole, CleanerStatus } from "@/app/generated/prisma/enums";
+import { lebanesePhoneInputSchema } from "@/lib/validation/phone"; // 🆕 1
+
+// ── Shared input fields ──
+
+export const emailInputSchema = z.string().trim().toLowerCase().pipe(z.email()); // 🆕 2
 
 // ── User entity (excludes sensitive fields) ──
 
@@ -11,10 +15,7 @@ export const userSchema = z.object({
   email: z.email(),
   emailVerified: z.boolean(),
   emailVerifiedAt: z.date().nullable(),
-  phoneNumber: z.string().regex(
-  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
-  "Enter a valid Lebanese mobile number"
-  ),
+  phoneNumber: z.string(), // 🆕 3
   profileImage: z.url().nullable(),
   cleanerStatus: z.enum(CleanerStatus).nullable(),
   createdAt: z.date(),
@@ -24,24 +25,18 @@ export const userSchema = z.object({
 // ── Owner registration input ──
 
 export const registerOwnerInputSchema = z.object({
-  username: z.string().min(1),
-  email: z.email(),
-  phoneNumber: z.string().regex(
-  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
-  "Enter a valid Lebanese mobile number"
-  ),
+  username: z.string().trim().min(1), // 🆕 4
+  email: emailInputSchema,            // 🆕 2
+  phoneNumber: lebanesePhoneInputSchema, // 🆕 1
   password: z.string().min(8),
 });
 
 // ── Admin creates cleaner input ──
 
 export const createCleanerInputSchema = z.object({
-  username: z.string().min(1),
-  email: z.email(),
-  phoneNumber: z.string().regex(
-  /^(?:3\d{6}|(?:70|71|76|78|79|81)\d{6})$/,
-  "Enter a valid Lebanese mobile number"
-  ),
+  username: z.string().trim().min(1), // 🆕 4
+  email: emailInputSchema,            // 🆕 2
+  phoneNumber: lebanesePhoneInputSchema, // 🆕 1
   cleanerStatus: z.enum(CleanerStatus),
 });
 
