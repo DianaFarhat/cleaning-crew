@@ -1,5 +1,5 @@
-
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { registerOwnerInputSchema } from "@/types/user";
 import { OwnerRegistrationService } from "@/services/register-owner";
@@ -9,42 +9,26 @@ import { BadRequestException } from "@/util/exceptions/http/BadRequestException"
 
 export const POST = withErrorHandler(async (req) => {
   // 1. Read request body
-  const { username, email, phoneNumber, password } =
-    await req.json().catch(() => ({}));
-
-  // 2. Check missing fields manually
-  if (!username || !email || !phoneNumber || !password) {
-    throw new BadRequestException("All fields are required", {
-      username: !username,
-      email: !email,
-      phoneNumber: !phoneNumber,
-      password: !password,
-    });
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    throw new BadRequestException("Request body must be valid JSON");
   }
 
-  // 3. Validate input with Zod
-  const result = registerOwnerInputSchema.safeParse({
-    username,
-    email,
-    phoneNumber,
-    password,
-  });
+  // 2. Validate with Zod (missing fields + formats, all in one)
+  const result = registerOwnerInputSchema.safeParse(body);
 
   if (!result.success) {
-    return NextResponse.json(
-      {
-        error: "Validation failed",
-        details: result.error.flatten(),
-      },
-      { status: 422 }
+    throw new BadRequestException(
+      "Validation failed",
+      z.flattenError(result.error)
     );
   }
 
-  // 4. Call the service
-  const user = await OwnerRegistrationService.registerOwner(
-    result.data
-  );
+  // 3. Call the service
+  const user = await OwnerRegistrationService.registerOwner(result.data);
 
-  // 5. Return the created user
+  // 4. Return the created user
   return NextResponse.json(user, { status: 201 });
 });
