@@ -16,7 +16,7 @@ export const userSchema = z.object({
   emailVerified: z.boolean(),
   emailVerifiedAt: z.date().nullable(),
   phoneNumber: z.string(), // 🆕 3
-  profileImage: z.url().nullable(),
+  profileImage: z.string().nullable(),
   cleanerStatus: z.enum(CleanerStatus).nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -28,7 +28,7 @@ export const registerOwnerInputSchema = z.object({
   username: z.string().trim().min(1), // 🆕 4
   email: emailInputSchema,            // 🆕 2
   phoneNumber: lebanesePhoneInputSchema, // 🆕 1
-  password: z.string().min(8),
+  password: z.string().min(8).max(72),
 });
 
 // ── Admin creates cleaner input ──
