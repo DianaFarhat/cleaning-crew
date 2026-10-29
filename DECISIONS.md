@@ -75,9 +75,31 @@
 - `seed.ts` deletes everything in whatever `DATABASE_URL` points to.
 - Never run it against a shared or production database; check `.env` first.
 
+## 2026-10-29 · Dev DB is hosted on Railway (dev stage)
+- The seed safety lock can't check for `localhost` → use an explicit flag (`ALLOW_DB_WIPE=true`) before deploying.
+- Before going live: separate prod and dev databases.
+
 ## 2026-10-29 · All seeded dev users share one password
 - `DEV_PASSWORD = "123456789"` in `prisma/seed.ts`, bcrypt-hashed once and reused.
 - Why: any seeded user can log in for testing. Dev seed only.
+
+## 2026-10-29 · Nothing with history is ever hard-deleted
+- Chalets → `archivedAt` (hidden from lists, row stays).
+- Users can delete their account → **soft delete**: `deletedAt` is set, they can't log in, they're hidden from lists. The row stays.
+- Cleaners can also be deactivated by admin (`cleanerStatus: inactive`).
+- Templates/tasks → `archivedAt`. Sessions → `cancelled`.
+- Why: past sessions and payment records must always stay intact.
+
+## 2026-10-29 · Cascade only where the parent can be hard-deleted
+- Keep the DB default (refuse to delete a parent that still has children): it protects money history.
+- Cascade only on: AvailabilitySlot → User (exists), TaskImage → CleaningSessionTask (to add; upcoming session tasks can be hard-deleted).
+
+## 2026-10-29 · Signing up again with a deleted account's email = reactivation (via forgot password)
+- `POST /auth/register` with a deleted account's email → 409 "This account was deleted. Use 'Forgot password' to restore it."
+- `POST /auth/forgot-password` also sends the link to deleted accounts.
+- `POST /auth/reset-password` sets the new password **and** clears `deletedAt` → all history is back.
+- Reactivated owners do NOT get the system templates copied again (they keep their old copies).
+- Why: proves the person owns the inbox; no new APIs needed.
 
 ---
 
@@ -89,4 +111,3 @@
 - [ ] Admin-created cleaners: start with `emailVerified: true` so they can log in?
 - [ ] Is anyone already building a frontend from the Swagger?
 - [ ] Test tool: Vitest or Jest? Tests in `tests/` folder or next to the code?
-- [ ] Dev DB: local (`localhost`) or hosted? Decides whether the seed safety lock can check for `localhost`.
