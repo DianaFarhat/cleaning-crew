@@ -101,6 +101,21 @@
 - Reactivated owners do NOT get the system templates copied again (they keep their old copies).
 - Why: proves the person owns the inbox; no new APIs needed.
 
+## 2026-10-29 · The route decides the role, never the body
+- Owners: `POST /auth/register` (public) → always `owner`.
+- Cleaners: `POST /users` (admin) → always `cleaner`.
+- Both share `UserRepository`, the `User` table, and `userSchema`; routes, input schemas, and services are separate.
+- Why: nobody can make themselves an admin or cleaner by sending `"role": "admin"`.
+
+## 2026-10-29 · Admin-created cleaners start verified + get a temp password
+- `emailVerified: true` + `emailVerifiedAt: now` (the password is delivered to that email, which proves ownership).
+- Temp password: 12 random chars, hashed; `passwordChangedAt = null` forces a change on first login.
+- Dev only: the temp password is printed in the server terminal.
+
+## 2026-10-29 · Cleaner onboarding: invite link (planned)
+- Later: admin creates cleaner → email with a one-time "set your password" link (same token flow as reset password); temp password removed.
+- Why: a password never sits in an inbox; reuses code we need for forgot password anyway.
+
 ---
 
 ## ❓ Open questions (decide, then move up as a decision)
@@ -108,6 +123,5 @@
 - [ ] Field naming: contract says `phone_number` (snake_case), code uses `phoneNumber` (camelCase). Leaning: make Swagger all camelCase.
 - [ ] Validation error body: contract `errors: [{ field, message }]` vs code `details: { fieldErrors }`.
 - [ ] URL prefix: contract `/v1/...` vs code `/api/...`.
-- [ ] Admin-created cleaners: start with `emailVerified: true` so they can log in?
 - [ ] Is anyone already building a frontend from the Swagger?
 - [ ] Test tool: Vitest or Jest? Tests in `tests/` folder or next to the code?
