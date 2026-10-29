@@ -48,6 +48,37 @@
 - Owners only see and edit their own copies.
 - Why: owners can customize freely without touching the masters.
 
+## 2026-10-29 · Repositories can join a transaction
+- Repository methods that write take an optional `db: Prisma.TransactionClient = prisma`.
+- Normal calls use `prisma`; inside `prisma.$transaction(async (tx) => …)` we pass `tx`.
+- Why: several writes (user + template copies) must succeed or fail together.
+
+## 2026-10-29 · Two seeds: system vs dev
+- `prisma/seed-system.ts` (+ data in `prisma/system-templates.ts`): system templates only. Never deletes; safe in production. Run: `npx tsx prisma/seed-system.ts`.
+- `prisma/seed.ts` (dev only): wipes the whole DB, re-runs `seedSystemTemplates`, then builds the fake test world. Run: `npx prisma db seed` (also runs on `prisma migrate reset`).
+- Why: production needs system templates but must never get fake data or a wipe.
+
+## 2026-10-29 · The system seed is idempotent
+- Before creating, it checks for `ownerId = null` + same name; if found, it skips.
+- Running it 10 times = running it once. Verified (2nd run printed "skipping").
+
+## 2026-10-29 · System templates never change after release
+- Need something different? Add a **new** system template; never edit an existing one.
+- So the seed skips a template entirely if it exists (new tasks on an old template would not be added).
+
+## 2026-10-29 · Starter system template: Standard Turnover only
+- 9 tasks: beds 📸, towels, bathroom 📸, counters, dishes, fridge 📸, floors, bins, terrace.
+- `room` is free text → always use the same spelling (`Bedroom`, `Bathroom`, `Kitchen`, `Whole chalet`, `Outdoor`).
+- Why: start small; owners edit their own copies.
+
+## 2026-10-29 · Dev seed wipes the database → local/dev only
+- `seed.ts` deletes everything in whatever `DATABASE_URL` points to.
+- Never run it against a shared or production database; check `.env` first.
+
+## 2026-10-29 · All seeded dev users share one password
+- `DEV_PASSWORD = "123456789"` in `prisma/seed.ts`, bcrypt-hashed once and reused.
+- Why: any seeded user can log in for testing. Dev seed only.
+
 ---
 
 ## ❓ Open questions (decide, then move up as a decision)
@@ -58,3 +89,4 @@
 - [ ] Admin-created cleaners: start with `emailVerified: true` so they can log in?
 - [ ] Is anyone already building a frontend from the Swagger?
 - [ ] Test tool: Vitest or Jest? Tests in `tests/` folder or next to the code?
+- [ ] Dev DB: local (`localhost`) or hosted? Decides whether the seed safety lock can check for `localhost`.

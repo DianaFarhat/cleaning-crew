@@ -1,12 +1,21 @@
 import "dotenv/config";
+import bcrypt from "bcrypt";
 import { PrismaClient } from "@/app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { seedSystemTemplates } from "./system-templates";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
     connectionString: process.env.DATABASE_URL,
   }),
 });
+
+// =========================================================
+// DEV LOGIN
+// Every seeded user can log in with this password.
+// =========================================================
+
+const DEV_PASSWORD = "123456789";
 
 // =========================================================
 // DATE HELPERS
@@ -35,6 +44,7 @@ async function main() {
 
   // =======================================================
   // RESET DATABASE
+  // ⚠️ Wipes EVERYTHING. Local / dev databases only.
   // Delete children before parents because not all of your
   // relations currently use onDelete: Cascade.
   // =======================================================
@@ -51,6 +61,16 @@ async function main() {
   await prisma.user.deleteMany();
 
   // =======================================================
+  // 0. SYSTEM DATA (same as production)
+  // The reset above deletes system templates too, so put them back.
+  // =======================================================
+
+  await seedSystemTemplates(prisma);
+
+  // Hash once, reuse for every user (bcrypt is slow on purpose)
+  const passwordHash = await bcrypt.hash(DEV_PASSWORD, 10);
+
+  // =======================================================
   // 1. USERS
   // =======================================================
 
@@ -65,7 +85,7 @@ async function main() {
       email: "jad.khoury@yallacrew.com",
       emailVerified: true,
       emailVerifiedAt: new Date(),
-      passwordHash: "passwordHash",
+      passwordHash,
       phoneNumber: "+96170123456",
     },
   });
@@ -82,7 +102,7 @@ async function main() {
       email: "maya.fares@yallacrew.com",
       emailVerified: true,
       emailVerifiedAt: new Date(),
-      passwordHash: "passwordHash",
+      passwordHash,
       phoneNumber: "+96171234567",
       cleanerStatus: "active",
     },
@@ -96,7 +116,7 @@ async function main() {
       email: "rami.nasrallah@yallacrew.com",
       emailVerified: true,
       emailVerifiedAt: new Date(),
-      passwordHash: "passwordHash",
+      passwordHash,
       phoneNumber: "+96176345678",
       cleanerStatus: "active",
     },
@@ -110,7 +130,7 @@ async function main() {
       email: "sara.nassar@yallacrew.com",
       emailVerified: true,
       emailVerifiedAt: new Date(),
-      passwordHash: "passwordHash",
+      passwordHash,
       phoneNumber: "+96170111222",
       cleanerStatus: "inactive",
     },
@@ -128,7 +148,7 @@ async function main() {
       email: "karim.aoun@gmail.com",
       emailVerified: true,
       emailVerifiedAt: new Date(),
-      passwordHash: "passwordHash",
+      passwordHash,
       phoneNumber: "+96178456789",
       profileImage: "https://example.com/profiles/karim.jpg",
     },
@@ -142,7 +162,7 @@ async function main() {
       email: "layal.haddad@gmail.com",
       emailVerified: false,
       emailVerifiedAt: null,
-      passwordHash: "passwordHash",
+      passwordHash,
       phoneNumber: "+96179567890",
       profileImage: null,
     },
@@ -811,12 +831,13 @@ async function main() {
   console.log("✅ Yalla Crew seed complete.");
   console.log(`
 Seed world:
-  Users:        6
+  Users:        6   (password for all: ${DEV_PASSWORD})
   Chalets:      3
-  Templates:    2
+  Templates:    3   (1 system + 2 owned by Karim)
   Sessions:     6
 
 Scenarios:
+  ✓ system template (Standard Turnover)
   ✓ verified owner
   ✓ unverified owner
   ✓ active available cleaner
