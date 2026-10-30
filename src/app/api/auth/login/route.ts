@@ -36,13 +36,3 @@ export const POST = withErrorHandler(async (req) => {
   }
 });
 
-//I added, just to test the auth middleware, you can remove it later
-export const GET = withErrorHandler(
-  authenticate(async (req: any) => {
-    // req.userId is the logged-in user
-    return NextResponse.json({
-      message: 'Authenticated',
-      userId: req.userId,
-    });
-  }) as unknown as Parameters<typeof withErrorHandler>[0]
-);

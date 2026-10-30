@@ -1,0 +1,54 @@
+// src/services/owner-registration-service.ts
+
+import bcrypt from "bcrypt";
+import { Prisma, UserRole } from "@/app/generated/prisma/client";
+import { userSchema, type RegisterOwnerInput, type SafeUser } from "@/types/user";
+import { UserRepository } from "@/repository/user-repository";
+import { ConflictException } from "@/util/exceptions/http/ConflictException";
+
+// 1. Mapper: transforms registration input into database data
+function toOwnerCreateData(
+  data: RegisterOwnerInput,
+  passwordHash: string
+): Prisma.UserCreateInput {
+  return {
+    username: data.username,
+    email: data.email,
+    phoneNumber: data.phoneNumber,
+    passwordHash,
+    role: UserRole.owner,
+    emailVerified: false,
+    cleanerStatus: null,
+    profileImage: null,
+  };
+}
+
+// 2. Service: coordinates the registration process
+export class OwnerRegistrationService {
+  static async registerOwner(data: RegisterOwnerInput): Promise<SafeUser> {
+  // 👀 fast check (catches 99% of cases)
+  const existingUser = await UserRepository.findByEmail(data.email);
+  if (existingUser) {
+    throw new ConflictException("Email already exists");
+  }
+
+  const passwordHash = await bcrypt.hash(data.password, 10);
+
+  try {
+    // 💾 try to save
+    const newUser = await UserRepository.createUser(
+      toOwnerCreateData(data, passwordHash)
+    );
+    return userSchema.parse(newUser);
+  } catch (e) {
+    // 🛑 DB said "duplicate!" (P2002 = unique rule broken)
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === "P2002"
+    ) {
+      throw new ConflictException("Email already exists");
+    }
+    throw e; // 🤷 some other error → let it go
+  }
+}
+}

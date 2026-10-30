@@ -1,12 +1,13 @@
-// types/user.ts
 import { z } from "zod";
 import { UserRole, CleanerStatus } from "@/app/generated/prisma/enums";
+import { lebanesePhoneInputSchema } from "@/lib/validation/phone"; // 🆕 1
 
-// ── Full entity — shape of a User as it's safe to hold and pass around
-// your app layers. passwordHash and passwordChangedAt are deliberately
-// NOT here — they never leave the repository layer. See user-repository.ts
-// for where the raw Prisma row (which does have both) gets parsed down
-// into this shape.
+// ── Shared input fields ──
+
+export const emailInputSchema = z.string().trim().toLowerCase().pipe(z.email()); // 🆕 2
+
+// ── User entity (excludes sensitive fields) ──
+
 export const userSchema = z.object({
   userId: z.uuid(),
   username: z.string(),
@@ -14,26 +15,39 @@ export const userSchema = z.object({
   email: z.email(),
   emailVerified: z.boolean(),
   emailVerifiedAt: z.date().nullable(),
-  phoneNumber: z.string(),
-  profileImage: z.url().nullable(),
+  phoneNumber: z.string(), // 🆕 3
+  profileImage: z.string().nullable(),
   cleanerStatus: z.enum(CleanerStatus).nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export type User = z.infer<typeof userSchema>;
+// ── Owner registration input ──
 
-// Alias for clarity at call sites where "this has been stripped of
-// sensitive fields" is the point being made — currently identical to
-// User, since userSchema already excludes everything sensitive.
-export type SafeUser = User;
+export const registerOwnerInputSchema = z.object({
+  username: z.string().trim().min(1), // 🆕 4
+  email: emailInputSchema,            // 🆕 2
+  phoneNumber: lebanesePhoneInputSchema, // 🆕 1
+  password: z.string().min(8).max(72),
+});
 
-// ── Input schema for POST /users (admin creates a cleaner) ──
+// ── Admin creates cleaner input ──
+
 export const createCleanerInputSchema = z.object({
-  username: z.string().min(1),
-  email: z.email(),
-  phoneNumber: z.string().min(1),
+  username: z.string().trim().min(1), // 🆕 4
+  email: emailInputSchema,            // 🆕 2
+  phoneNumber: lebanesePhoneInputSchema, // 🆕 1
   cleanerStatus: z.enum(CleanerStatus),
 });
 
-export type CreateCleanerInput = z.infer<typeof createCleanerInputSchema>;
+// ── Inferred TypeScript types ──
+
+export type User = z.infer<typeof userSchema>;
+
+export type SafeUser = User;
+
+export type RegisterOwnerInput =
+  z.infer<typeof registerOwnerInputSchema>;
+
+export type CreateCleanerInput =
+  z.infer<typeof createCleanerInputSchema>;
