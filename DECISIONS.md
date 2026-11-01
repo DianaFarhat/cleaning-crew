@@ -116,12 +116,51 @@
 - Later: admin creates cleaner → email with a one-time "set your password" link (same token flow as reset password); temp password removed.
 - Why: a password never sits in an inbox; reuses code we need for forgot password anyway.
 
+## 2026-10-29 · Cleaner status lifecycle
+- Admin picks `active` or `inactive` when creating a cleaner (`POST /users`), and can change it any time via `PATCH /users/{userId}/status`.
+- Inactive = can't log in (403) and is never auto-assigned. History stays.
+- Only cleaners have a status: changing it on an owner/admin → 400 "Target user is not a cleaner".
+
+## 2026-10-30 · N-tier rules (how the layers talk)
+- Route: reads + validates the request, calls **one service**, sends the response. Knows nothing about repositories or Prisma.
+- Service: business rules + mapping input → DB data. Never touches `Request`, `Response`, or cookies (it returns data; the route sets cookies).
+- Repository: the only layer that talks to the DB. Pick it by the **table** it queries (`TemplateRepository` for templates, even when filtering by owner).
+- Input → DB mapping (mapper) lives in the service, with explicit fields. Output shape lives once in `types/user.ts` (`userSchema` / `SafeUser`), so every service returns the same safe user.
+- Services are one file per use case (`register-owner.ts`, `create-cleaner.ts`, …) using static classes.
+
+## 2026-10-30 · Keep transactions short
+- Do slow work (bcrypt hashing) **before** `prisma.$transaction`, then open → write → close.
+- Inside a transaction, every repository call must receive `tx` (an optional `db` param compiles fine without it, so check by eye).
+
+## 2026-10-30 · 409 stays separate from 400
+- 400 = the input itself is bad (broken JSON, failed validation, business rule).
+- 409 = valid input that clashes with existing data (email already taken, including the race case via `P2002`).
+
+## 2026-10-30 · Validation error body = Zod's flattened error
+- 400 validation responses: `{ "error": "Validation failed", "details": { "formErrors": [...], "fieldErrors": { "<field>": [...] } } }`.
+- Swagger v1.7.1 updated to match the code (no code changes).
+- Why: the code was already consistent; cheapest fix.
+
+## 2026-10-30 · Stubs: finish the feature, stub its dependencies
+- Ship the endpoint working end-to-end; shared infrastructure it depends on (e.g. email) becomes its own task.
+- Every stub is tagged and findable: `// TODO(auth)`, `// TODO(email-infra)`.
+- Every stub is guarded so it can't reach production (e.g. `NODE_ENV !== "production"`), and listed under "Before launch" in `TODO.md`.
+
+## 2026-10-30 · camelCase everywhere in code and API
+- JSON fields and query params: camelCase (`phoneNumber`, `includeStats`). Swagger v1.8.0 converted.
+- DB columns stay snake_case via Prisma `@map`. Enum values stay as stored (`in_progress`, `session_assigned`).
+- Why: TypeScript convention; same names from Prisma to JSON, no mapping layer.
+
+## 2026-10-30 · URL prefix is /api (follows Next.js routes)
+- Swagger servers: `http://localhost:3000/api`, `https://api.yallacrew.com/api` (v1.9.0).
+- Why: matches `src/app/api/...` with no rewrites.
+- Versioning (`/api/v1`) not decided yet: see open questions.
+
 ---
 
 ## ❓ Open questions (decide, then move up as a decision)
 
-- [ ] Field naming: contract says `phone_number` (snake_case), code uses `phoneNumber` (camelCase). Leaning: make Swagger all camelCase.
-- [ ] Validation error body: contract `errors: [{ field, message }]` vs code `details: { fieldErrors }`.
-- [ ] URL prefix: contract `/v1/...` vs code `/api/...`.
+- [ ] API versioning: will there be a mobile app or outside clients? If yes → move routes to `/api/v1` now while it's cheap.
 - [ ] Is anyone already building a frontend from the Swagger?
 - [ ] Test tool: Vitest or Jest? Tests in `tests/` folder or next to the code?
+- [ ] Login tokens: cookies (current code) or in the response body (current Swagger)?
