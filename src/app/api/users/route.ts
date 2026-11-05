@@ -33,3 +33,4 @@ export const POST = withErrorHandler(async (req) => {
   // 4. Return the created cleaner
   return NextResponse.json(cleaner, { status: 201 });
 });
+

@@ -16,6 +16,12 @@ export class UserRepository {
     });
   }
 
+  static async findById(userId: string) {
+    return prisma.user.findUnique({
+      where: { userId },
+    });
+  }
+
   static async createUser(
     data: Prisma.UserCreateInput,
     db: Prisma.TransactionClient = prisma
@@ -23,4 +29,13 @@ export class UserRepository {
     return db.user.create({ data });
   }
 
+    static async updateUser(
+    userId: string,
+    data: Prisma.UserUpdateInput,
+    db: Prisma.TransactionClient = prisma
+  ) {
+    return db.user.update({ where: { userId }, data });
+  }
+ 
 }
+

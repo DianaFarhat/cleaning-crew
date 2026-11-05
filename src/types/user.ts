@@ -40,6 +40,13 @@ export const createCleanerInputSchema = z.object({
   cleanerStatus: z.enum(CleanerStatus),
 });
 
+// ── Admin changes cleaner status ──
+
+export const changeCleanerStatusInputSchema = z.object({
+  cleanerStatus: z.enum(CleanerStatus),
+});
+
+
 // ── Inferred TypeScript types ──
 
 export type User = z.infer<typeof userSchema>;
@@ -51,3 +58,6 @@ export type RegisterOwnerInput =
 
 export type CreateCleanerInput =
   z.infer<typeof createCleanerInputSchema>;
+
+export type ChangeCleanerStatusInput =
+  z.infer<typeof changeCleanerStatusInputSchema>;  
