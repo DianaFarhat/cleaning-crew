@@ -156,11 +156,25 @@
 - Why: matches `src/app/api/...` with no rewrites.
 - Versioning (`/api/v1`) not decided yet: see open questions.
 
+## 2026-11-01 · No API versioning: routes stay at `/api/...`
+- The app is web only; no mobile app or outside clients planned.
+- Replaces the "not decided yet" note in the 2026-10-30 URL prefix entry.
+- Why: versioning only pays off when clients we don't control depend on the API.
+
+## 2026-11-04 · `PATCH /users/{userId}/status` sets an explicit status (no toggle)
+- Body says the target status (`active` / `inactive`); the server sets exactly that, never "flip whatever it is now".
+- Why: idempotent. A double click or a retry gives the same result; a toggle would flip it back.
+
+## 2026-11-05 · `withErrorHandler` types `ctx` as `RouteContext`
+- `type RouteContext = { params: Promise<Record<string, string>> }`, replacing `ctx?: unknown`.
+- The wrapper already forwarded `ctx` at runtime; only the type was blocking `ctx.params`.
+- Dynamic routes read `const { userId } = await ctx.params;` with no casts. Routes without params just ignore `ctx`.
+- Why: fixed once in the wrapper instead of a workaround in every `[param]` route.
+
 ---
 
 ## ❓ Open questions (decide, then move up as a decision)
 
-- [ ] API versioning: will there be a mobile app or outside clients? If yes → move routes to `/api/v1` now while it's cheap.
 - [ ] Is anyone already building a frontend from the Swagger?
 - [ ] Test tool: Vitest or Jest? Tests in `tests/` folder or next to the code?
 - [ ] Login tokens: cookies (current code) or in the response body (current Swagger)?
