@@ -210,6 +210,12 @@
 - bcrypt always runs: when no user is found, it compares against a dummy hash (same cost as real hashes).
 - Why: attackers can't tell which emails are registered, not by the message and not by response time.
 
+## 2026-11-07 · `GET /users/{userId}`: archived users → 404
+- Missing or archived → 404 "User with ID … not found". Any role can be fetched (not only cleaners).
+- Access (when auth exists): admin can view any user; everyone else only their own `userId` (403 otherwise).
+- Returns `SafeUser` for every caller for now; whether admin sees fewer fields than the user themselves is revisited when auth exists (data minimization).
+- Why: same rule as the status endpoint; archived = hidden.
+
 ---
 
 ## ❓ Open questions (decide, then move up as a decision)
@@ -217,3 +223,4 @@
 - [ ] Is anyone already building a frontend from the Swagger?
 - [ ] Test tool: Vitest or Jest? Tests in `tests/` folder or next to the code?
 - [ ] Login tokens: cookies (current code) or in the response body (current Swagger)?
+- [ ] Should admin see fewer user fields than the user sees about themselves? (go through `userSchema` field by field)
