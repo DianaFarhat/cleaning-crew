@@ -216,6 +216,20 @@
 - Returns `SafeUser` for every caller for now; whether admin sees fewer fields than the user themselves is revisited when auth exists (data minimization).
 - Why: same rule as the status endpoint; archived = hidden.
 
+## 2026-11-07 · Every incoming string has a max length
+- `usernameInputSchema` = trim, 1–100 chars, shared by register, create cleaner and update profile.
+- `emailInputSchema` max 254 (the email standard's limit); `profileImage` input = `z.url().max(2048)`; password stays 8–72.
+- Output schema (`userSchema`) gets no max lengths: validate data coming IN, not going OUT.
+- Why: without a max, anyone can store huge strings (slow responses, database bloat).
+
+## 2026-11-07 · Empty update body is a no-op, not an error
+- `PATCH /users/{userId}` with `{}` (or only unknown fields, which are dropped) → 200, user unchanged.
+- No `.refine` in `updateUserProfileInputSchema`; the service skips the DB write when there's nothing to change.
+- Why: PATCH means "apply these changes"; none is still valid. Matches big public APIs (Stripe, GitHub).
+
+## 2026-11-07 · Swagger v1.10.0 matches the code
+- Max lengths (username 100, email 254, profileImage URL 2048), UUID `userId` → 400, status endpoint non-cleaner → 404, archived users → 404, empty profile PATCH → 200.
+
 ---
 
 ## ❓ Open questions (decide, then move up as a decision)

@@ -12,13 +12,14 @@
 - [ ] Format `user-repository.ts` (Shift+Alt+F)
 - [ ] (Optional) `Promise<SafeUser>` return type on `changeCleanerStatus` (readability only)
 - [ ] Remaining Postman cases: repeat request (200), random UUID (404), `abc` (400), owner id (404), bad status (400), broken JSON (400)
-- [ ] Update Swagger: body `cleanerStatus`, 200 + user, 404 for non-cleaners
+- [x] Swagger v1.10.0: body `cleanerStatus`, 200 + user, 404 for non-cleaners
 
 ## 🔨 Now: GET /users/{userId}
 - [x] Route `api/users/[userId]/route.ts`
 - [x] Service `services/user/get-user.ts` (missing or archived → 404)
 - [ ] Postman: real id (200, no `passwordHash`), random UUID (404), `abc` (400), archived id (404)
-- [ ] Update Swagger: 404 for archived, 400 for non-UUID
+- [x] Swagger v1.10.0: 404 for archived, 400 for non-UUID
+- [ ] Update `TODO(auth)` comment: admin → any user; others → own userId, or a cleaner assigned to one of their sessions (owner); 403 otherwise
 
 ## 📦 Before committing
 - [ ] `npm run build` passes
@@ -32,8 +33,17 @@
 - [ ] Later: rename `authentication-service.ts` to an action name
 - [ ] Later (optional): move `register-owner.ts` to `services/auth/`
 
+## 🔨 Now: PATCH /users/{userId} (edit own profile)
+- [x] Shared `usernameInputSchema` (1–100), email max 254, used everywhere
+- [x] `updateUserProfileInputSchema` + `UpdateUserProfileInput` type
+- [x] Swagger checked: unknown keys (`role`) silently dropped (Zod default, no `.strict()`); empty body `{}` → 200 unchanged
+- [x] Swagger v1.10.0 updated for this endpoint
+- [ ] Repository: reuse `updateUser`
+- [ ] Service `services/user/update-user-profile.ts` (missing/archived → 404; empty input → return the user unchanged, no DB write)
+- [ ] PATCH in `api/users/[userId]/route.ts` with `// TODO(auth): caller must be this user (403 otherwise)`
+- [ ] Postman: each field alone (200), `{}` (200 unchanged), `{ "role": "admin" }` (200, role unchanged), 101-char username (400), bad phone (400), non-URL image (400), archived/missing user (404)
+
 ## ⏭️ Next endpoints
-- [ ] `PATCH /users/{userId}` (user edits own profile), same `[userId]/route.ts` file as GET
 - [ ] `GET /users` with pagination (slow down and learn pagination properly)
 - [ ] Availability slots (4 endpoints under `/users/{userId}/availability-slots`)
 - [ ] Add "delete my account" (soft delete with `archivedAt`) to Swagger
