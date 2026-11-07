@@ -1,12 +1,13 @@
 // src/services/user/change-cleaner-status.ts
 import { UserRepository } from "@/repository/user-repository";
 import { NotFoundException } from "@/util/exceptions/http/NotFoundException";
-import { userSchema } from "@/types/user"; // CHECK: where userSchema lives
+import { SafeUser, userSchema } from "@/types/user"; 
+import { CleanerStatus } from "@/app/generated/prisma/browser";
 
 export async function changeCleanerStatus(
   cleanerId: string,
-  newStatus: "active" | "inactive"
-) {
+  newStatus: CleanerStatus
+) : Promise<SafeUser>{
   const cleaner = await UserRepository.findById(cleanerId);
 
   // missing, archived, or not a cleaner → 404

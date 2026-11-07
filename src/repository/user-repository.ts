@@ -6,7 +6,7 @@ export class UserRepository {
   static async findCredentialsByEmail(email: string) {
     return prisma.user.findUnique({
       where: { email },
-      select: { userId: true, passwordHash: true },
+      select: { userId: true, passwordHash: true , archivedAt:true},
     });
   }
 
