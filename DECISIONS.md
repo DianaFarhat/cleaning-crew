@@ -171,6 +171,45 @@
 - Dynamic routes read `const { userId } = await ctx.params;` with no casts. Routes without params just ignore `ctx`.
 - Why: fixed once in the wrapper instead of a workaround in every `[param]` route.
 
+## 2026-11-06 · Users are soft-deleted with `archivedAt` (not `deletedAt`)
+- `User.archivedAt DateTime?` (migration `add_user_archived_at`).
+- Replaces `deletedAt` in the 2026-10-29 entries: soft delete sets `archivedAt`; `reset-password` clears `archivedAt`.
+- Why: one name for "hidden but kept" across users, chalets, templates and tasks.
+
+## 2026-11-06 · Dev DB stays on Railway (Hobby plan)
+- Upgraded after the trial expired; data survived (no reset needed).
+- Commit `schema.prisma` and its migration folder together, never the schema alone.
+
+## 2026-11-07 · Services: one folder per area, one file per use case, plain functions
+- `services/auth/` = authentication (login, registration, credential checks): `validate-user.ts`, …
+- `services/user/` = admin actions on users: `create-cleaner.ts`, `change-cleaner-status.ts`.
+- `services/template/` = templates.
+- Files are named after the action (not "…-service"), and export plain functions (no static classes).
+- Replaces "using static classes" in the 2026-10-30 N-tier entry.
+- Why: small files with one job, grouped like the repositories, easy to find.
+
+## 2026-11-07 · No `index.ts` barrel files in services
+- Routes import use-case files directly (`@/services/user/change-cleaner-status`).
+- Why: barrels aren't needed in Next.js, can cause circular imports, and load extra code.
+
+## 2026-11-07 · URL params are validated with Zod like the body
+- `[userId]` → `z.uuid()`; a non-UUID id → 400 instead of a Prisma 500.
+- `RouteContext` is exported from `withErrorHandler.ts` so routes can type `ctx`.
+
+## 2026-11-07 · Status change on a non-cleaner → 404 (not 400)
+- Missing, archived, or non-cleaner user → 404 "Cleaner with ID … not found".
+- Replaces the 400 "Target user is not a cleaner" in the 2026-10-29 status lifecycle entry.
+- Why: from this endpoint's point of view, that cleaner doesn't exist; and it doesn't reveal which ids belong to owners/admins.
+
+## 2026-11-07 · `PATCH /users/{userId}/status` returns 200 + the updated cleaner
+- Body: `{ "cleanerStatus": "active" | "inactive" }`.
+- Response: the safe user (`userSchema`, no `passwordHash`), same as other user endpoints.
+
+## 2026-11-07 · Login gives one answer for every failure
+- No user, wrong password, or archived account → the same 401 `InvalidCredentialsException`.
+- bcrypt always runs: when no user is found, it compares against a dummy hash (same cost as real hashes).
+- Why: attackers can't tell which emails are registered, not by the message and not by response time.
+
 ---
 
 ## ❓ Open questions (decide, then move up as a decision)
