@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { HttpException } from '@/util/exceptions/http/HttpException';
 
-type RouteContext = { params: Promise<Record<string, string>> };
+export type RouteContext = { params: Promise<Record<string, string>> };
 type Handler = (req: Request, ctx: RouteContext) => Promise<Response>;
 
 export function withErrorHandler(handler: Handler): Handler {

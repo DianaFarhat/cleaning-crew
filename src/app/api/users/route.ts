@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createCleanerInputSchema } from "@/types/user";
-import { CleanerCreationService } from "@/services/create-cleaner";
+import { CleanerCreationService } from "@/services/user/create-cleaner";
 
 import { withErrorHandler } from "@/util/withErrorHandler";
 import { BadRequestException } from "@/util/exceptions/http/BadRequestException";

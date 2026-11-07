@@ -1,7 +1,7 @@
 // src/middleware/auth.ts
 import { NextResponse } from 'next/server';
 import { AuthRequest } from '@/types/token';
-import { authService } from '@/services/authentication-service';
+import { authService } from '@/services/auth/authentication-service';
 import { AuthenticationFailedException } from '@/util/exceptions/http/AuthenticationException';
 
 
