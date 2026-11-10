@@ -1,6 +1,6 @@
 // src/app/api/auth/logout/route.ts
 import { NextResponse } from 'next/server';
-import { AuthenticationService } from '@/services/authentication-service';
+import { AuthenticationService } from '@/services/auth/authentication-service';
 import { withErrorHandler } from '@/util/withErrorHandler';
 
 const authService = new AuthenticationService();

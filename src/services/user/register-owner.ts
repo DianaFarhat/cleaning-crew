@@ -3,7 +3,7 @@ import { Prisma, UserRole } from "@/app/generated/prisma/client";
 import prisma from "@/lib/db"; // 🆕
 import { userSchema, type RegisterOwnerInput, type SafeUser } from "@/types/user";
 import { UserRepository } from "@/repository/user-repository";
-import { TemplateService } from "@/services/template-service"; // 🆕
+import { TemplateService } from "@/services/template/template-service"; // 🆕
 import { ConflictException } from "@/util/exceptions/http/ConflictException";
 
 // 1. Mapper: transforms registration input into database data
