@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { registerOwnerInputSchema } from "@/types/user";
-import { OwnerRegistrationService } from "@/services/register-owner";
+import { OwnerRegistrationService } from "@/services/user/register-owner";
 
 import { withErrorHandler } from "@/util/withErrorHandler";
 import { BadRequestException } from "@/util/exceptions/http/BadRequestException";

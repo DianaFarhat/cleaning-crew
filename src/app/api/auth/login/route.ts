@@ -1,7 +1,7 @@
 // app/api/auth/login/route.ts
 import { NextResponse } from 'next/server';
-import { authService } from '@/services/authentication-service';
-import { UserService } from '@/services/user-service';
+import { authService } from '@/services/auth/authentication-service';
+import { UserService } from '@/services/auth/validate-user';
 import { UserRepository } from '@/repository/user-repository';
 import { withErrorHandler } from '@/util/withErrorHandler';
 import { BadRequestException } from '@/util/exceptions/http/BadRequestException';
